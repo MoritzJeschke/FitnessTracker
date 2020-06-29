@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Button, Text } from 'react-native';
+import { StyleSheet, View, Button, Text } from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createAppContainer } from 'react-navigation';
 import TrackerActivity from './Activities/TrackerActivity';
@@ -9,11 +9,11 @@ import MapView from 'react-native-maps';
 export class App extends Component {
 
   gotoHistorie = () => {
-    this.props.navigation.navigate('historie');
+    this.props.navigation.navigate('Historie');
   }
 
   gotoTracker = () => {
-    this.props.navigation.navigate('tracker');
+    this.props.navigation.navigate('Tracker');
   }
 
   render() {
@@ -24,8 +24,7 @@ export class App extends Component {
         </Text>
         <Button title='HistorieActivity' onPress={this.gotoHistorie}></Button>
         <Button title='TrackerActivity' onPress={this.gotoTracker}></Button>
-        <View style={styles.container}>
-          <MapView style={styles.map}
+        <MapView style={styles.map}
                   initialRegion={{
                       latitude: 37.78825,
                       longitude: -122.4324,
@@ -33,7 +32,6 @@ export class App extends Component {
                       longitudeDelta: 0.1,
                   }}
           />
-        </View>
       </View>
     );
   }
@@ -41,27 +39,15 @@ export class App extends Component {
 }
   
 const AppNavigator = createStackNavigator ({
-  main: { screen: App },
-  historie: { screen: HistoryActivity },
-  tracker: { screen: TrackerActivity }
+  Mainmenu: { screen: App },
+  Historie: { screen: HistoryActivity },
+  Tracker: { screen: TrackerActivity }
 });
 
 const styles = StyleSheet.create({
-  container:{
-      position: 'absolute',
-      top: 0,
-      left:0,
-      bottom:0,
-      right:0,
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-  },
   map: {
-      position: 'absolute',
-      top: 0,
-      left:0,
-      bottom:0,
-      right:0,
+      width: 500,
+      height: 500,
   }
 });
 
