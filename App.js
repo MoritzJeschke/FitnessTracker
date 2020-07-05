@@ -6,6 +6,7 @@ import TrackerActivity from './Activities/TrackerActivity';
 import HistoryActivity from './Activities/HistorieActivity';
 import MapView from 'react-native-maps';
 
+/* eslint-disable prettier/prettier */
 export class App extends Component {
 
   gotoHistorie = () => {
@@ -26,10 +27,10 @@ export class App extends Component {
         <Button title='TrackerActivity' onPress={this.gotoTracker}></Button>
         <MapView style={styles.map}
                   initialRegion={{
-                      latitude: 37.78825,
-                      longitude: -122.4324,
-                      latitudeDelta: 0.1,
-                      longitudeDelta: 0.1,
+                      latitude: 50.199759,
+                      longitude: 8.665006,
+                      latitudeDelta: 10,
+                      longitudeDelta: 10,
                   }}
           />
       </View>
@@ -37,7 +38,7 @@ export class App extends Component {
   }
 
 }
-  
+
 const AppNavigator = createStackNavigator ({
   Mainmenu: { screen: App },
   Historie: { screen: HistoryActivity },
