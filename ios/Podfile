@@ -79,6 +79,12 @@ target 'FitnessTracker' do
 
   pod 'react-native-maps', :path => '../node_modules/react-native-maps'
 
+  pod 'RNSVG', :path => '../node_modules/react-native-svg'
+
+  pod 'RNBackgroundFetch', :path => '../node_modules/react-native-background-fetch'
+
+  pod '@mauron85_react-native-background-geolocation', :path => '../node_modules/@mauron85/react-native-background-geolocation'
+
   target 'FitnessTrackerTests' do
     inherit! :complete
     # Pods for testing
