@@ -33,19 +33,26 @@ export default class HistoryActivity extends Component {
             //calculate average Distance, Height and time and cut the decimal places
             const avgKm = (sumKm / this.tableDataLastDays.length).toFixed(3);
             const avgHm = (sumHm /this.tableDataLastDays.length).toFixed(0);
-            const avgTime = (sumTime / this.tableDataLastDays.length).toFixed(2);
-            this.tableDateAverage = [avgKm, avgHm, avgTime, (avgTime / avgKm).toFixed(2)];
+            const avgTime = ((sumTime / this.tableDataLastDays.length)).toFixed(2);
+
+            this.tableDateAverage = [avgKm, avgHm, this.millisToMinutesAndSeconds(avgTime), ((avgTime/1000/60) / avgKm).toFixed(2)];
 
             //rerender the view cuz retrieving of data is delayed
             this.forceUpdate();
         }); 
     }
 
+    millisToMinutesAndSeconds(millis) {
+      var minutes = Math.floor(millis / 60000);
+      var seconds = ((millis % 60000) / 1000).toFixed(0);
+      return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+    }
+
     getTabelData(td) {
       //generate 2 dimensinal array with the table data and returns it
       var tableData = [];
       for (let i = 0; i < td.length; i++) {
-        tableData.push([td[i].date, td[i].distance, td[i].height, td[i].time, (td[i].time / td[i].distance).toFixed(2)]);
+        tableData.push([td[i].date, (td[i].distance / 1000).toFixed(3), td[i].height, this.millisToMinutesAndSeconds(td[i].time), ((td[i].time/1000/60) / (td[i].distance / 1000)).toFixed(2)]);
       }
 
       return tableData;

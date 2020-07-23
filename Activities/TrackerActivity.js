@@ -315,11 +315,17 @@ export default class TrackerActivity extends Component {
             BackgroundGeolocation.stop();
 
             var dh = new Datahandler();
-            dh.storeData(new Data(new Date().getDate(), distance, 20, totalHeight));
+            var date = startTime.getDate() + "-" + (startTime.getMonth() + 1) + "-" + startTime.getFullYear();
+            var time = new Date() - startTime;
+            var d = new Data(date, distance, time, totalHeight);
+            console.log('Data:');
+            console.log(d);
+            dh.storeData(d);
 
-            App.props.navigation.navigate('Mainmenu');
+            //App.props.navigation.navigate('Mainmenu');
         };
     }
+
 }
 
 const styles = StyleSheet.create({
