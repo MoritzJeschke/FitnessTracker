@@ -6,6 +6,7 @@ import BackgroundGeolocation from '@mauron85/react-native-background-geolocation
 import {Row, Table} from 'react-native-table-component';
 import Datahandler from '../Datahandler';
 import Data from '../Data';
+import {App} from '../App';
 
 const {width, height} = Dimensions.get('window');
 
@@ -250,14 +251,6 @@ export default class TrackerActivity extends Component {
         http.send(null);
     }
 
-    saveData(){
-        console.log("asdasdasdasdasdadasdas")
-
-        //BackgroundGeolocation.stop();
-
-        // var dh = new Datahandler();
-        // dh.storeData(new Data(new Date().getDate(), distance, 20, height));
-    }
 
     render() {
         return (
@@ -315,6 +308,17 @@ export default class TrackerActivity extends Component {
                 />
             </View>
         );
+    }
+
+    static saveData() {
+        return function (p1: NativeSyntheticEvent<NativeTouchEvent>) {
+            BackgroundGeolocation.stop();
+
+            var dh = new Datahandler();
+            dh.storeData(new Data(new Date().getDate(), distance, 20, totalHeight));
+
+            App.props.navigation.navigate('Mainmenu');
+        };
     }
 }
 

@@ -4,13 +4,12 @@ import {View, Text} from 'react-native';
 import TrackerActivity from './TrackerActivity';
 
 export default function Header() {
-  var trackerActivity = new TrackerActivity();
-
   return (
     <View style={styles.header}>
       <View style={styles.container}>
         <Text style={styles.headerText}>Tracker</Text>
-        <Button title={'Save Run'} onPress={trackerActivity.saveData()} />
+        {/* eslint-disable-next-line no-undef */}
+        <Button title={'Save Run'} onPress={TrackerActivity.saveData()} />
       </View>
     </View>
   );
