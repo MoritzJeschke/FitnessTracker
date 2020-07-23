@@ -11,9 +11,6 @@ export default class HistoryActivity extends Component {
         super(props);
 
         var dh = new Datahandler();
-        dh.storeData(new Data('23-07-2020', 15, 120, 200));
-        dh.storeData(new Data('24-07-2020', 13, 240, 3999));
-        dh.storeData(new Data('25-07-2020', 12, 480, 123));
         dh.getLastDays().then((td) => {
             
             //last 7 days table
@@ -27,15 +24,20 @@ export default class HistoryActivity extends Component {
             var sumHm = 0;
             var sumTime = 0;
             for (var i = 0; i < this.tableDataLastDays.length; i++) {
+                //Sum of all values in the second column (Distance)
                 sumKm += Number.parseInt(this.tableDataLastDays[i][1]);
+                //Sum of all values in the third column (Height)
                 sumHm += Number.parseInt(this.tableDataLastDays[i][2])
+                //Sum of all values in the fourth column (Time)
                 sumTime += Number.parseInt(this.tableDataLastDays[i][3]);
             }
+            //calculate average Distance, Height and time and cut the decimal places
             const avgKm = (sumKm / this.tableDataLastDays.length).toFixed(3);
             const avgHm = (sumHm /this.tableDataLastDays.length).toFixed(0);
             const avgTime = (sumTime / this.tableDataLastDays.length).toFixed(2);
             this.tableDateAverage = [avgKm, avgHm, avgTime, (avgTime / avgKm).toFixed(2)];
 
+            //rerender the view cuz retrieving of data is delayed
             this.forceUpdate();
         }
         );
@@ -45,7 +47,7 @@ export default class HistoryActivity extends Component {
     getTabelData(td) {
         var tableData = [];
         for (let i = 0; i < td.length; i++) {
-            tableData.push([td[i].date, td[i].distance, td[i].heigth, td[i].time, (td[i].time / td[i].distance).toFixed(2)]);
+            tableData.push([td[i].date, td[i].distance, td[i].height, td[i].time, (td[i].time / td[i].distance).toFixed(2)]);
         }
 
         return tableData;

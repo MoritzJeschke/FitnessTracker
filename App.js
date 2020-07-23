@@ -31,7 +31,7 @@ export class App extends Component {
           />
 
         <View style={styles.container}>
-          <Button title='HistorieActivity' onPress={this.gotoHistorie}></Button>
+          <Button style={styles.button} title='HistorieActivity' onPress={this.gotoHistorie}></Button>
           <Button title='TrackerActivity' onPress={this.gotoTracker}></Button>
         </View>
         
@@ -51,11 +51,15 @@ const AppNavigator = createStackNavigator ({
 const styles = StyleSheet.create({
   map: {
       width: 500,
-      height: 500,
+      height: 500
   },
   container: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-around',
+    bottom: -50
+  },
+  button: {
+    backgrou
   }
 });
 

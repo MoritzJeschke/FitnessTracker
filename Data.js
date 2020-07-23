@@ -1,13 +1,14 @@
 export default class Data {
+    //storing and handeling a tracked Activity (Date, Distance, Time, Height)
     date;
     distance;
     time;
-    heigth;
+    height;
 
-    constructor(date, distance, time, heigth) {
+    constructor(date, distance, time, height) {
         this.date = date;
         this.distance = distance;
         this.time = time;
-        this.heigth = heigth;
+        this.heigth = height;
     }
 }
