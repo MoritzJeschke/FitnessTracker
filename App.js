@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import { StyleSheet, View, Button, Text } from 'react-native';
-import { createStackNavigator } from 'react-navigation-stack';
-import { createAppContainer } from 'react-navigation';
+import React, {Component} from 'react';
+import {StyleSheet, View, Button, Text} from 'react-native';
+import {createStackNavigator} from 'react-navigation-stack';
+import {createAppContainer} from 'react-navigation';
 import TrackerActivity from './Activities/TrackerActivity';
 import HistoryActivity from './Activities/HistorieActivity';
 import Header from './Activities/Header';
@@ -31,19 +31,19 @@ export class App extends Component {
           />
 
         <View style={styles.container}>
-          <Button title='HistorieActivity' onPress={this.gotoHistorie}></Button>
-          <Button title='TrackerActivity' onPress={this.gotoTracker}></Button>
+          <Button title="HistorieActivity" onPress={this.gotoHistorie} />
+          <Button title="TrackerActivity" onPress={this.gotoTracker} />
         </View>
       </View>
     );
   }
 }
 
-const AppNavigator = createStackNavigator ({
+const AppNavigator = createStackNavigator({
   //Navigator between Activitys
   Mainmenu: { screen: App },
   Historie: { screen: HistoryActivity },
-  Tracker: { screen: TrackerActivity, navigationOptions:{headerTitle: () => <Header />}}
+  Tracker: { screen: TrackerActivity, navigationOptions:{headerTitle: () => <Header />}},
 });
 
 const styles = StyleSheet.create({
