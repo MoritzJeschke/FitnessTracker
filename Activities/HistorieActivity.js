@@ -8,8 +8,8 @@ export default class HistoryActivity extends Component {
     constructor(props) {
         super(props);
 
+        //Datahandler saves and load data
         var dh = new Datahandler();
-        dh.storeData(new Data('23-07-2020', 10, 20, 666));
         dh.getLastDays().then((td) => {
                 
             //last 7 days table
@@ -38,18 +38,17 @@ export default class HistoryActivity extends Component {
 
             //rerender the view cuz retrieving of data is delayed
             this.forceUpdate();
-        }
-        );
-            
+        }); 
     }
 
     getTabelData(td) {
-        var tableData = [];
-        for (let i = 0; i < td.length; i++) {
-            tableData.push([td[i].date, td[i].distance, td[i].height, td[i].time, (td[i].time / td[i].distance).toFixed(2)]);
-        }
+      //generate 2 dimensinal array with the table data and returns it
+      var tableData = [];
+      for (let i = 0; i < td.length; i++) {
+        tableData.push([td[i].date, td[i].distance, td[i].height, td[i].time, (td[i].time / td[i].distance).toFixed(2)]);
+      }
 
-        console.log(tableData);
+      return tableData;
     }
 
   render() {
