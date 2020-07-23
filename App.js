@@ -5,6 +5,7 @@ import { createAppContainer } from 'react-navigation';
 import TrackerActivity from './Activities/TrackerActivity';
 import HistoryActivity from './Activities/HistorieActivity';
 import MapView from 'react-native-maps';
+import { Row } from 'react-native-table-component';
 
 /* eslint-disable prettier/prettier */
 export class App extends Component {
@@ -20,11 +21,6 @@ export class App extends Component {
   render() {
     return (
       <View>
-        <Text>
-          This is the Mainmenu!
-        </Text>
-        <Button title='HistorieActivity' onPress={this.gotoHistorie}></Button>
-        <Button title='TrackerActivity' onPress={this.gotoTracker}></Button>
         <MapView style={styles.map}
                   initialRegion={{
                       latitude: 50.199759,
@@ -33,6 +29,13 @@ export class App extends Component {
                       longitudeDelta: 10,
                   }}
           />
+
+        <View style={styles.container}>
+          <Button title='HistorieActivity' onPress={this.gotoHistorie}></Button>
+          <Button title='TrackerActivity' onPress={this.gotoTracker}></Button>
+        </View>
+        
+        
       </View>
     );
   }
@@ -49,6 +52,10 @@ const styles = StyleSheet.create({
   map: {
       width: 500,
       height: 500,
+  },
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
   }
 });
 

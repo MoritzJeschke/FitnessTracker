@@ -85,6 +85,8 @@ target 'FitnessTracker' do
 
   pod '@mauron85_react-native-background-geolocation', :path => '../node_modules/@mauron85/react-native-background-geolocation'
 
+  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-community/async-storage'
+
   target 'FitnessTrackerTests' do
     inherit! :complete
     # Pods for testing
