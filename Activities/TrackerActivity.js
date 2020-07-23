@@ -1,21 +1,16 @@
 import React, {Component} from 'react';
-import {View, Text, StyleSheet, Dimensions} from 'react-native';
+import {View, StyleSheet, Dimensions} from 'react-native';
 import MapView, {Polyline} from 'react-native-maps';
 import {LineChart} from 'react-native-chart-kit';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 import {Row, Table} from 'react-native-table-component';
 import Datahandler from '../Datahandler';
 import Data from '../Data';
-import {App} from '../App';
 
 const {width, height} = Dimensions.get('window');
 
-const SCREEN_HEIGHT = height;
-const SCREEN_WIDTH = width;
 let LATTITUDE_DELTA = 0.005;
 let LONGITUDE_DELTA = 0.005;
-
-let intervallID = 0;
 
 let distance = 0;
 let lastHeight = 0;
@@ -30,8 +25,6 @@ export default class TrackerActivity extends Component {
     constructor() {
         super();
 
-        console.log('constuctor');
-
         this.state = {
             position: {
                 latitude: 50.199759,
@@ -44,6 +37,7 @@ export default class TrackerActivity extends Component {
             heightData: [0],
             tableDateAverage: [0, 0, 0],
         };
+
         BackgroundGeolocation.start();
     }
 
@@ -67,7 +61,6 @@ export default class TrackerActivity extends Component {
         });
 
         BackgroundGeolocation.on('location', async (location) => {
-            console.log(location);
 
             const newLocation = {
                 latitude: location.latitude,
@@ -77,7 +70,6 @@ export default class TrackerActivity extends Component {
             };
 
             await this.addNewPosition(newLocation);
-            // backgroundPositions.push(newLocation);
         });
 
         BackgroundGeolocation.on('error', (error) => {
@@ -101,16 +93,15 @@ export default class TrackerActivity extends Component {
                 // if no initialRegion
                 this.setState({lastPositions: [...this.state.lastPositions, (newUserLocation)]});
             } else if (this.getDistanceBetweenPoints(newUserLocation, lastPosition) > 6) {
-                // if distance between points greater than 6 m
+                // if distance between points greater than 6 m get nearest Street to point
                 await this.getNearestStreet(newUserLocation);
-            } else {
-                //console.log('skied Http');
             }
             sendHTTP = true;
         }
     }
 
     getDistanceBetweenPoints(newLocation, lastUserLocation): number {
+        // code from https://www.movable-type.co.uk/scripts/latlong.html
 
         const R = 6371e3; // metres
         const r1 = newLocation.latitude * Math.PI / 180; // φ, λ in radians
@@ -123,18 +114,16 @@ export default class TrackerActivity extends Component {
             Math.sin(d2 / 2) * Math.sin(d2 / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-        const d = R * c; // in metres
+        const d = R * c;
 
-        // console.log(d);
-        return d;
+        return d;// distance in metres
     }
 
     async getNearestStreet(userLocation): any {
         // Http request to get nearest Street from Position
 
-        console.log('send');
         const http = new XMLHttpRequest();
-        const url = 'http://router.project-osrm.org/nearest/v1/foot/' + userLocation.longitude + ',' + userLocation.latitude; // 8.580695,50.230894;8.5806205,50.2294911
+        const url = 'http://router.project-osrm.org/nearest/v1/foot/' + userLocation.longitude + ',' + userLocation.latitude;
 
         let response = await fetch(url);
         let responseJson = await response.json();
@@ -149,17 +138,13 @@ export default class TrackerActivity extends Component {
             latitudeDelta: LATTITUDE_DELTA,
             longitudeDelta: LONGITUDE_DELTA,
         };
-        console.log('got');
         if (this.getDistanceBetweenPoints(userLocation, newStreetLocation) > 15) {
-            // if street is more than 15 m from user position add position to polyline
+            // if street is more than 15 m from user position add user position to polyline
             this.addPosToPolyline(userLocation);
-            //console.log('added Point');
         } else {
             // if street is less than 15 m from user position add street position to polyline
             this.addPosToPolyline(newStreetLocation);
-            //console.log('added Street');
         }
-        console.log('finished');
     }
 
     addPosToPolyline(newUserLocation) {
@@ -174,7 +159,7 @@ export default class TrackerActivity extends Component {
 
         // only add new Location if it is new
         if (!this.state.lastPositions.filter((value => value.latitude === newLocation.latitude && value.longitude === newLocation.longitude)).length > 0) {
-            // add to distance
+            // update total distance
             distance += this.getDistanceBetweenPoints(newUserLocation, this.state.lastPositions[this.state.lastPositions.length - 1]);
 
             this.setState({lastPositions: [...this.state.lastPositions, (newLocation)]});
@@ -203,25 +188,22 @@ export default class TrackerActivity extends Component {
                 this.setState({initialHeight: responseData});
             }
 
+            // add height to list of heights. Only add heightdifference from initial height
             this.setState({heightData: [...this.state.heightData, (responseData - this.state.initialHeight)]});
 
-            // TODO :: shorten function
+            // calculate relative heightdifference
             if (responseData - this.state.initialHeight < 0) {
                 // current height under 0m
                 if (lastHeight !== (responseData - this.state.initialHeight)) {
 
                     if (lastHeight < (responseData - this.state.initialHeight)) {
                         // up
-                        console.log('1', lastHeight);
                         totalHeight += (responseData - this.state.initialHeight) + lastHeight * -1;
                         lastHeight = (responseData - this.state.initialHeight);
-                        console.log('1', lastHeight);
                     } else {
                         // down
-                        console.log('2', lastHeight);
                         totalHeight += lastHeight + (responseData - this.state.initialHeight) * -1;
                         lastHeight = (responseData - this.state.initialHeight);
-                        console.log('2', lastHeight);
                     }
                 }
             } else {
@@ -230,21 +212,17 @@ export default class TrackerActivity extends Component {
 
                     if (lastHeight < (responseData - this.state.initialHeight)) {
                         // up
-                        console.log('3', lastHeight);
                         totalHeight += (responseData - this.state.initialHeight) - lastHeight;
                         lastHeight = (responseData - this.state.initialHeight);
-                        console.log('3', lastHeight);
                     } else {
                         // down
-                        console.log('4', lastHeight);
                         totalHeight += lastHeight - (responseData - this.state.initialHeight);
                         lastHeight = (responseData - this.state.initialHeight);
-                        console.log('4', lastHeight);
                     }
                 }
             }
-            console.log(startTime.getMilliseconds());
 
+            // update table data
             this.setState({tableDateAverage: [(distance / 1000).toFixed(3), totalHeight, ((new Date().getMinutes() - startTime.getMinutes()) / (distance / 1000)).toFixed(2)]});
         };
 
@@ -312,20 +290,15 @@ export default class TrackerActivity extends Component {
 
     static saveData() {
         return function (p1: NativeSyntheticEvent<NativeTouchEvent>) {
-            BackgroundGeolocation.stop();
 
             var dh = new Datahandler();
             var date = startTime.getDate() + "-" + (startTime.getMonth() + 1) + "-" + startTime.getFullYear();
             var time = new Date() - startTime;
             var d = new Data(date, distance, time, totalHeight);
-            console.log('Data:');
-            console.log(d);
+            // save Data into Database
             dh.storeData(d);
-
-            //App.props.navigation.navigate('Mainmenu');
         };
     }
-
 }
 
 const styles = StyleSheet.create({
@@ -347,17 +320,4 @@ const styles = StyleSheet.create({
     table: {
         margin: 5
     },
-    header: {
-        width: '100%',
-        height: '100%',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    headerText: {
-        fontWeight:'bold',
-        fontSize:20,
-        color:'#333',
-        letterSpacing: 1
-    }
 });
