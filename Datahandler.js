@@ -11,9 +11,8 @@ export default class Datahandler {
           const jsonValue = JSON.stringify(value);
           this.getLastDays().then(async (data) => {
             data.unshift(value);
-            console.log(data.length)
             if (data.length > MAX_LENGTH) {
-              console.log(data.pop());
+              data.pop();
             } 
             await AsyncStorage.setItem(storageKey, JSON.stringify(data));
           });

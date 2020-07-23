@@ -1,18 +1,27 @@
 import React, {Component} from 'react';
-import {View, Text, StyleSheet, Dimensions, AppState} from 'react-native';
+import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import MapView, {Polyline} from 'react-native-maps';
 import {LineChart} from 'react-native-chart-kit';
 import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
+import {Row, Table} from 'react-native-table-component';
+import Datahandler from '../Datahandler';
+import Data from '../Data';
 
 const {width, height} = Dimensions.get('window');
 
 const SCREEN_HEIGHT = height;
 const SCREEN_WIDTH = width;
-const RATIO = width / height;
 let LATTITUDE_DELTA = 0.005;
 let LONGITUDE_DELTA = 0.005;
 
 let intervallID = 0;
+
+let distance = 0;
+let lastHeight = 0;
+let totalHeight = 0;
+let tableHeadAverage = ['km', 'height', 'Ø min/km'];
+let startTime = new Date();
+let sendHTTP = true;
 
 /* eslint-disable prettier/prettier */
 export default class TrackerActivity extends Component {
@@ -24,35 +33,20 @@ export default class TrackerActivity extends Component {
 
         this.state = {
             position: {
-                latitude: 0,
-                longitude: 0,
-                latitudeDelta: LONGITUDE_DELTA,
-                longitudeDelta: LONGITUDE_DELTA,
+                latitude: 50.199759,
+                longitude: 8.665006,
+                latitudeDelta: 10,
+                longitudeDelta: 10,
             },
             lastPositions: [],
             initialHeight: undefined,
             heightData: [0],
+            tableDateAverage: [0, 0, 0],
         };
-
-        let appState = AppState.currentState;
-        const handleAppStateChange = (state: any) => {
-            appState = state;
-
-            if (appState.match('background')) {
-                //BackgroundGeolocation.start();
-            } else {
-                //BackgroundGeolocation.stop();
-            }
-        };
-
-        AppState.addEventListener('change', handleAppStateChange);
-
         BackgroundGeolocation.start();
     }
 
     componentDidMount(): void {
-
-        // this.setIntervall();
 
         BackgroundGeolocation.configure({
             desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
@@ -69,19 +63,9 @@ export default class TrackerActivity extends Component {
             fastestInterval: 3000,
             activitiesInterval: 3000,
             stopOnStillActivity: false,
-            // url: 'http://192.168.81.15:3000/location',
-            httpHeaders: {
-                'X-FOO': 'bar'
-            },
-            // customize post properties
-            postTemplate: {
-                lat: '@latitude',
-                lon: '@longitude',
-                foo: 'bar' // you can also add your own properties
-            }
         });
 
-        BackgroundGeolocation.on('location', (location) => {
+        BackgroundGeolocation.on('location', async (location) => {
             console.log(location);
 
             const newLocation = {
@@ -91,7 +75,7 @@ export default class TrackerActivity extends Component {
                 longitudeDelta: LONGITUDE_DELTA,
             };
 
-            this.addNewPosition(newLocation);
+            await this.addNewPosition(newLocation);
             // backgroundPositions.push(newLocation);
         });
 
@@ -101,50 +85,27 @@ export default class TrackerActivity extends Component {
 
         BackgroundGeolocation.on('start', () => {
             console.log('[INFO] BackgroundGeolocation service has been started');
-            // clearInterval(intervallID);
         });
 
         BackgroundGeolocation.on('stop', () => {
             console.log('[INFO] BackgroundGeolocation service has been stopped');
-            // this.setIntervall();
         });
     }
 
-    setIntervall() {
-
-        intervallID = setInterval(async () => {
-
-            console.log('start');
-
-            navigator.geolocation = require('@react-native-community/geolocation');
-            navigator.geolocation.getCurrentPosition((position) => {
-
-                const newLocation = {
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                    latitudeDelta: LATTITUDE_DELTA,
-                    longitudeDelta: LONGITUDE_DELTA,
-                };
-
-                this.addNewPosition(newLocation);
-
-            }, (error) => {
-                console.log(error.message);
-            }, {enableHighAccuracy: true, timeout: 5000, maximumAge: 5000});
-        }, 3000);
-    }
-
     async addNewPosition(newUserLocation): void {
-
-        const lastPosition = this.state.lastPositions[this.state.lastPositions.length - 1];
-        if (lastPosition == null) {
-            // if no initialRegion
-            this.setState({lastPositions: [...this.state.lastPositions, (newUserLocation)]});
-        } else if (this.getDistanceBetweenPoints(newUserLocation, lastPosition) > 6) {
-            // if distance between points greater than 6 m
-            await this.getNearestStreet(newUserLocation);
-        } else {
-            //console.log('skied Http');
+        if (sendHTTP) {
+            sendHTTP = false;
+            const lastPosition = this.state.lastPositions[this.state.lastPositions.length - 1];
+            if (lastPosition == null) {
+                // if no initialRegion
+                this.setState({lastPositions: [...this.state.lastPositions, (newUserLocation)]});
+            } else if (this.getDistanceBetweenPoints(newUserLocation, lastPosition) > 6) {
+                // if distance between points greater than 6 m
+                await this.getNearestStreet(newUserLocation);
+            } else {
+                //console.log('skied Http');
+            }
+            sendHTTP = true;
         }
     }
 
@@ -212,9 +173,11 @@ export default class TrackerActivity extends Component {
 
         // only add new Location if it is new
         if (!this.state.lastPositions.filter((value => value.latitude === newLocation.latitude && value.longitude === newLocation.longitude)).length > 0) {
+            // add to distance
+            distance += this.getDistanceBetweenPoints(newUserLocation, this.state.lastPositions[this.state.lastPositions.length - 1]);
+
             this.setState({lastPositions: [...this.state.lastPositions, (newLocation)]});
             this.getCurrentHeight(newLocation);
-            //console.log('added new Position');
         }
     }
 
@@ -238,37 +201,67 @@ export default class TrackerActivity extends Component {
             if (this.state.initialHeight === undefined) {
                 this.setState({initialHeight: responseData});
             }
+
             this.setState({heightData: [...this.state.heightData, (responseData - this.state.initialHeight)]});
 
+            // TODO :: shorten function
+            if (responseData - this.state.initialHeight < 0) {
+                // current height under 0m
+                if (lastHeight !== (responseData - this.state.initialHeight)) {
+
+                    if (lastHeight < (responseData - this.state.initialHeight)) {
+                        // up
+                        console.log('1', lastHeight);
+                        totalHeight += (responseData - this.state.initialHeight) + lastHeight * -1;
+                        lastHeight = (responseData - this.state.initialHeight);
+                        console.log('1', lastHeight);
+                    } else {
+                        // down
+                        console.log('2', lastHeight);
+                        totalHeight += lastHeight + (responseData - this.state.initialHeight) * -1;
+                        lastHeight = (responseData - this.state.initialHeight);
+                        console.log('2', lastHeight);
+                    }
+                }
+            } else {
+                // current height over 0m
+                if (lastHeight !== (responseData - this.state.initialHeight)) {
+
+                    if (lastHeight < (responseData - this.state.initialHeight)) {
+                        // up
+                        console.log('3', lastHeight);
+                        totalHeight += (responseData - this.state.initialHeight) - lastHeight;
+                        lastHeight = (responseData - this.state.initialHeight);
+                        console.log('3', lastHeight);
+                    } else {
+                        // down
+                        console.log('4', lastHeight);
+                        totalHeight += lastHeight - (responseData - this.state.initialHeight);
+                        lastHeight = (responseData - this.state.initialHeight);
+                        console.log('4', lastHeight);
+                    }
+                }
+            }
+            console.log(startTime.getMilliseconds());
+
+            this.setState({tableDateAverage: [(distance / 1000).toFixed(3), totalHeight, ((new Date().getMinutes() - startTime.getMinutes()) / (distance / 1000)).toFixed(2)]});
         };
 
         http.send(null);
-
-        // navigator.geolocation = require('@react-native-community/geolocation');
-//
-        // navigator.geolocation.getCurrentPosition((position) => {
-//
-        //     if (this.state.initialHeight === undefined) {
-        //         this.setState({initialHeight: position.coords.altitude});
-        //     }
-//
-        //     this.setState({heightData: [...this.state.heightData, (position.coords.altitude - this.state.initialHeight)]});
-//
-        //     console.log('data', this.state.heightData, this.state.initialHeight);
-        // }, (error) => {
-        //     this.setState({heightData: [...this.state.heightData, (this.state.heightData[this.state.heightData.length - 1])]});
-        //     console.log(error.message);
-        // }, {enableHighAccuracy: true, timeout: 5000, maximumAge: 5000});
     }
 
-    // onUserLocationChange={(newUserLocation) => this.addNewPosition(newUserLocation.nativeEvent.coordinate)}
+    saveData(){
+        console.log("asdasdasdasdasdadasdas")
+
+        //BackgroundGeolocation.stop();
+
+        // var dh = new Datahandler();
+        // dh.storeData(new Data(new Date().getDate(), distance, 20, height));
+    }
+
     render() {
         return (
             <View>
-                <Text>
-                    This is the TrackerActivity!
-                </Text>
-
                 <MapView style={styles.map}
                          showsMyLocationButton={true}
                          initialRegion={this.state.position}
@@ -280,9 +273,13 @@ export default class TrackerActivity extends Component {
                     <Polyline coordinates={this.state.lastPositions}/>
                 </MapView>
 
+                <Table borderStyle={styles.tableBorder} style={styles.table}>
+                    <Row style={styles.tableHeader} data={tableHeadAverage}/>
+                    <Row textStyle={styles.centerText} style={styles.tableBody} data={this.state.tableDateAverage}/>
+                </Table>
+
                 <LineChart
                     data={{
-                        labels: ['January', 'February', 'March', 'April', 'May', 'June'],
                         datasets: [
                             {
                                 data: this.state.heightData,
@@ -321,7 +318,6 @@ export default class TrackerActivity extends Component {
     }
 }
 
-
 const styles = StyleSheet.create({
     map: {
         width: width,
@@ -331,4 +327,27 @@ const styles = StyleSheet.create({
         width: width,
         height: height / 4 * 2,
     },
+    tableHeader: {
+        backgroundColor: '#fb8c00'
+    },
+    tableBorder: {
+        borderWidth: 1,
+        borderColor: '#000000'
+    },
+    table: {
+        margin: 5
+    },
+    header: {
+        width: '100%',
+        height: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    headerText: {
+        fontWeight:'bold',
+        fontSize:20,
+        color:'#333',
+        letterSpacing: 1
+    }
 });

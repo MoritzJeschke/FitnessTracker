@@ -1,18 +1,17 @@
-import React, { Component } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Table, Row, Rows } from 'react-native-table-component';
+import React, {Component} from 'react';
+import {StyleSheet, View} from 'react-native';
+import {Table, Row, Rows} from 'react-native-table-component';
 import Data from '../Data';
 import Datahandler from '../Datahandler';
 
 export default class HistoryActivity extends Component {
-
     constructor(props) {
-
         super(props);
 
         var dh = new Datahandler();
+        dh.storeData(new Data('23-07-2020', 10, 20, 666));
         dh.getLastDays().then((td) => {
-            
+                
             //last 7 days table
             this.tableHeadLastDays = ['Datum', 'Kilometer', 'Höhen-\nmeter', 'Minuten', 'Minuten/km'];
             this.tableDataLastDays = this.getTabelData(td);
@@ -41,7 +40,7 @@ export default class HistoryActivity extends Component {
             this.forceUpdate();
         }
         );
-        
+            
     }
 
     getTabelData(td) {
@@ -50,45 +49,52 @@ export default class HistoryActivity extends Component {
             tableData.push([td[i].date, td[i].distance, td[i].height, td[i].time, (td[i].time / td[i].distance).toFixed(2)]);
         }
 
-        return tableData;
+        console.log(tableData);
     }
 
-    render() {
-        return (
-            <View>
-                <Table borderStyle={styles.tableBorder} style={styles.table}>
-                    <Row style={styles.tableHeader} data={this.tableHeadLastDays}/>
-                    <Rows textStyle={styles.centerText} style={styles.tableBody} data={this.tableDataLastDays}/>
-                </Table>
-                
-                <Table borderStyle={styles.tableBorder} style={styles.table}>
-                    <Row style={styles.tableHeader} data={this.tableHeadAverage}/>
-                    <Row textStyle={styles.centerText} style={styles.tableBody} data={this.tableDateAverage}/>
-                </Table>
-            </View>
-        );
-    }
+  render() {
+    return (
+      <View>
+        <Table borderStyle={styles.tableBorder} style={styles.table}>
+          <Row style={styles.tableHeader} data={this.tableHeadLastDays} />
+          <Rows
+            textStyle={styles.centerText}
+            style={styles.tableBody}
+            data={this.tableDataLastDays}
+          />
+        </Table>
+
+        <Table borderStyle={styles.tableBorder} style={styles.table}>
+          <Row style={styles.tableHeader} data={this.tableHeadAverage} />
+          <Row
+            textStyle={styles.centerText}
+            style={styles.tableBody}
+            data={this.tableDateAverage}
+          />
+        </Table>
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
-    tableHeader: {
-        backgroundColor: '#4ae072'
-    },
+  tableHeader: {
+    backgroundColor: '#4ae072',
+  },
 
-    tableBorder: {
-        borderWidth: 1,
-        borderColor: '#000000'
-    },
+  tableBorder: {
+    borderWidth: 1,
+    borderColor: '#000000',
+  },
 
-    table: {
-        marginTop: 20,
-        marginBottom: 20,
-        marginLeft: 5,
-        marginRight: 5
-    },
+  table: {
+    marginTop: 20,
+    marginBottom: 20,
+    marginLeft: 5,
+    marginRight: 5,
+  },
 
-    centerText: {
-        textAlign: 'center'
-    }
-
-  });
+  centerText: {
+    textAlign: 'center',
+  },
+});

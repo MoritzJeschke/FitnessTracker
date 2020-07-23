@@ -4,8 +4,8 @@ import { createStackNavigator } from 'react-navigation-stack';
 import { createAppContainer } from 'react-navigation';
 import TrackerActivity from './Activities/TrackerActivity';
 import HistoryActivity from './Activities/HistorieActivity';
+import Header from './Activities/Header';
 import MapView from 'react-native-maps';
-import { Row } from 'react-native-table-component';
 
 /* eslint-disable prettier/prettier */
 export class App extends Component {
@@ -31,7 +31,7 @@ export class App extends Component {
           />
 
         <View style={styles.container}>
-          <Button style={styles.button} title='HistorieActivity' onPress={this.gotoHistorie}></Button>
+          <Button title='HistorieActivity' onPress={this.gotoHistorie}></Button>
           <Button title='TrackerActivity' onPress={this.gotoTracker}></Button>
         </View>
         
@@ -39,13 +39,12 @@ export class App extends Component {
       </View>
     );
   }
-
 }
 
 const AppNavigator = createStackNavigator ({
   Mainmenu: { screen: App },
   Historie: { screen: HistoryActivity },
-  Tracker: { screen: TrackerActivity }
+  Tracker: { screen: TrackerActivity, navigationOptions:{headerTitle: () => <Header />}}
 });
 
 const styles = StyleSheet.create({
@@ -57,9 +56,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     bottom: -50
-  },
-  button: {
-    backgrou
   }
 });
 

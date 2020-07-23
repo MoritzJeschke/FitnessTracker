@@ -9,6 +9,6 @@ export default class Data {
         this.date = date;
         this.distance = distance;
         this.time = time;
-        this.heigth = height;
+        this.height = height;
     }
 }
