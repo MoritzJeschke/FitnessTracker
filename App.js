@@ -4,6 +4,7 @@ import { createStackNavigator } from 'react-navigation-stack';
 import { createAppContainer } from 'react-navigation';
 import TrackerActivity from './Activities/TrackerActivity';
 import HistoryActivity from './Activities/HistorieActivity';
+import Header from './Activities/Header';
 import MapView from 'react-native-maps';
 import { Row } from 'react-native-table-component';
 
@@ -39,13 +40,12 @@ export class App extends Component {
       </View>
     );
   }
-
 }
 
 const AppNavigator = createStackNavigator ({
   Mainmenu: { screen: App },
   Historie: { screen: HistoryActivity },
-  Tracker: { screen: TrackerActivity }
+  Tracker: { screen: TrackerActivity, navigationOptions:{headerTitle: () => <Header />}}
 });
 
 const styles = StyleSheet.create({
