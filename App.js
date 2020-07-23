@@ -42,6 +42,7 @@ export class App extends Component {
 }
 
 const AppNavigator = createStackNavigator ({
+  //Navigator between Activitys
   Mainmenu: { screen: App },
   Historie: { screen: HistoryActivity },
   Tracker: { screen: TrackerActivity, navigationOptions:{headerTitle: () => <Header />}}

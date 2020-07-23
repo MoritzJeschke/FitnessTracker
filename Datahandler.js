@@ -1,13 +1,17 @@
 import AsyncStorage from '@react-native-community/async-storage';
 
-let storageKey = 'data';
-const MAX_LENGTH = 5;
-var lastDays = [];
+let storageKey = 'data';      //key for asyncstorage
+const MAX_LENGTH = 5;         //count of shown tracked activitys
+var lastDays = [];            //storage for tracked activitys
 
 export default class Datahandler {
 
     storeData = async (value) => {
         try {
+          //read current saved 
+          //put new activity on position 0
+          //remove last activity if list is full
+          //save in asyncstorage
           const jsonValue = JSON.stringify(value);
           this.getLastDays().then(async (data) => {
             data.unshift(value);
@@ -25,11 +29,13 @@ export default class Datahandler {
 
     getData = async () => {
         try {
-            var jsonValue = await AsyncStorage.getItem(storageKey);
-            jsonValue = JSON.parse(jsonValue);
-            for (let i = 0; i < jsonValue.length; i++) {
-              lastDays[i] = jsonValue[i];
-            }              
+          //read activitys from asyncstorage
+          //put them in lastDays array
+          var jsonValue = await AsyncStorage.getItem(storageKey);
+          jsonValue = JSON.parse(jsonValue);
+          for (let i = 0; i < jsonValue.length; i++) {
+            lastDays[i] = jsonValue[i];
+          }              
         } catch(e) {
             // error reading value
             console.log('Data Read Error')
@@ -37,6 +43,8 @@ export default class Datahandler {
     }
 
     async getLastDays() {
+      //call getData()
+      //return filled lastDays array
       await this.getData();
       return lastDays;
     }
