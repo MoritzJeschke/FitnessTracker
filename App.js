@@ -31,8 +31,8 @@ export class App extends Component {
           />
 
         <View style={styles.container}>
-          <Button title="HistorieActivity" onPress={this.gotoHistorie} />
-          <Button title="TrackerActivity" onPress={this.gotoTracker} />
+          <Button title="Historie" onPress={this.gotoHistorie} />
+          <Button title="Tracker" onPress={this.gotoTracker} />
         </View>
       </View>
     );
