@@ -297,6 +297,8 @@ export default class TrackerActivity extends Component {
             var d = new Data(date, distance, time, totalHeight);
             // save Data into Database
             dh.storeData(d);
+
+            BackgroundGeolocation.stop();
         };
     }
 }

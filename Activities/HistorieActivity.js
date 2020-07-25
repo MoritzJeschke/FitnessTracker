@@ -30,14 +30,14 @@ export default class HistoryActivity extends Component {
                 //Sum of all values in the fourth column (Time)
                 var str = this.tableDataLastDays[i][3] + '';
                 const values = str.split(':');
-                sumTime += values[0] * 60 + values[1] * 1000;
+                sumTime += values[0] * 60000 + values[1] * 1000;
             }
             //calculate average Distance, Height and time and cut the decimal places
             const avgKm = (sumKm / this.tableDataLastDays.length).toFixed(3);
             const avgHm = (sumHm / this.tableDataLastDays.length).toFixed(0);
             const avgTime = sumTime / this.tableDataLastDays.length;
 
-            this.tableDateAverage = [avgKm, avgHm, this.millisToMinutesAndSeconds(avgTime), ((avgTime/1000/60) / avgKm).toFixed(2)];
+            this.tableDateAverage = [avgKm, avgHm, this.millisToMinutesAndSeconds(avgTime), ((avgTime/60000) / avgKm).toFixed(2)];
 
             //rerender the view cuz retrieving of data is delayed
             this.forceUpdate();
